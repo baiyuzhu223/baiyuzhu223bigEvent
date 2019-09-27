@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>写文章</title>
+    <link rel="stylesheet" href="js/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/iconfont.css" />
+    <link rel="stylesheet" href="css/main.css" />
+    <link type="text/css" rel="stylesheet" href="js/jedate/css/jedate.css" />
+    <script src="js/lib/jquery-1.12.4.min.js"></script>
+    <script src="js/jedate/js/jedate.js"></script>
+    <script src="js/tinymce/js/tinymce/tinymce.min.js"></script>
+    <script src="js/tinymce/js/tinymce_setup.js"></script>
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="common_title">
+        写文章
+      </div>
+      <div class="container-fluid common_con">
+        <form class="form-horizontal article_form" id="myform">
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-2 control-label">文章标题：</label>
+            <div class="col-sm-10">
+              <input type="text" name="title" class="form-control" id="article_title" placeholder="文章标题" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="fileCover" class="col-sm-2 control-label">文章封面：</label>
+            <div class="col-sm-10">
+              <input type="file" name="cover" id="fileCover" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-2 control-label">文章类别：</label>
+            <div class="col-sm-4">
+              <select class="form-control" name="type" id="categoryContainer">
+                <!-- <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option> -->
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-2 control-label">发布时间：</label>
+            <div class="col-sm-4">
+              <div class="input-group">
+                <input type="text" class="form-control" name="date" placeholder="YYYY-MM-DD" id="dateinput" />
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button" onclick="jeDate('#dateinput',{trigger:false,format: 'YYYY-MM-DD'})"><i class="iconfont icon-icondate"></i></button>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-2 control-label">文章内容：</label>
+            <div class="col-sm-10">
+              <textarea class="form-control" id="rich_content" name="content" placeholder="文章内容">
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Assumenda fugiat illo nihil molestias ab. Laborum eius non atque, totam sapiente quae obcaecati assumenda ratione inventore pariatur maiores, qui libero delectus.
+                            </textarea
+              >
+            </div>
+          </div>
+          <div id="divResult" class="alert alert-danger" role="alert"></div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button id="btnAdd" type="button" class="btn btn-success">发布</button>
+              <button type="submit" class="btn btn-default">存为草稿</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+      <script src="./js/utils/config.js"></script>
+      <script src="./js/utils/category.js"></script>
+      <script src="./js/utils/article.js"></script>
+      <script src="./js/lib/template-web.js"></script>
+      <script id="tmp" type="text/html">
+    {{each data item}}
+    <option value="{{item.id}}">{{item.name}}</option>
+    {{/each}}
+    </script>
+    <script>
+   $(function(){
+    $('#divResult')
+          .hide()
+          .text('');
+    category.show(function(res){
+            console.log(res);
+            if(res.code===200){
+              $('#categoryContainer').html(template('tmp', res));
+            }
+        });
+        $('#btnAdd').click(function() {
+          // new FormData(dom对象)
+          var fd = new FormData($('#myform')[0]);
+
+          // 无法在表单中直接去获取文章的状态，通过代码添加这个参数
+          fd.append('state', '已发布');
+          // 通过富文本编辑器 tinyMCE 去获取当前文章的内容
+          fd.set('content', tinyMCE.activeEditor.getContent());
+
+          article.add(fd, function(res) {
+            console.log(res);
+            
+            if (res.code === 201) {
+              // 清空内容
+              // todos :
+              $('#article_title').val('');
+
+              $('#divResult')
+                .hide()
+                .text('');
+              // 跳转页面
+              window.location.href = './article_list.html';
+            } else {
+              $('#divResult')
+                .show()
+                .text(res.msg);
+            }
+          });
+        });
+   });
+      
+    
+    
+    
+    
+    </script>
+</body>
+
+</html>
